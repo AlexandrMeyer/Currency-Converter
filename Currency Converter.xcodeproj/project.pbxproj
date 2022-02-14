@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B511652827B90179006DB7F7 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B511652727B90179006DB7F7 /* DataManager.swift */; };
 		B5CDB61A27B6C45E0088BF5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CDB61927B6C45E0088BF5A /* AppDelegate.swift */; };
 		B5CDB62327B6C4620088BF5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5CDB62227B6C4620088BF5A /* Assets.xcassets */; };
 		B5CDB62627B6C4620088BF5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B5CDB62427B6C4620088BF5A /* LaunchScreen.storyboard */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B511652727B90179006DB7F7 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		B5CDB61627B6C45E0088BF5A /* Currency Converter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Currency Converter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5CDB61927B6C45E0088BF5A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B5CDB62227B6C4620088BF5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 			children = (
 				B5CDB62D27B6CB4C0088BF5A /* NetworkManager.swift */,
 				B5CDB62F27B6CE6A0088BF5A /* NetworkService.swift */,
+				B511652727B90179006DB7F7 /* DataManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -217,6 +220,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5CDB63027B6CE6A0088BF5A /* NetworkService.swift in Sources */,
+				B511652827B90179006DB7F7 /* DataManager.swift in Sources */,
 				B5CDB64427B6FD820088BF5A /* AlertController.swift in Sources */,
 				B5CDB62E27B6CB4C0088BF5A /* NetworkManager.swift in Sources */,
 				B5CDB63627B6E1130088BF5A /* CurrencyViewCell.swift in Sources */,
