@@ -17,15 +17,24 @@ protocol ConverterViewControllerAnotherDelegate {
 
 class ConverterViewController: UIViewController, UITextFieldDelegate {
     
-    private var currencyNameFrom: String = "USD"
-    private var currencyNameTo: String = "BYN"
+    private var currencyNameFrom: String = "USD" {
+        didSet {
+            updateRate(from: currencyNameFrom, to: currencyNameTo)
+        }
+    }
+    
+    private var currencyNameTo: String = "BYN" {
+        didSet {
+            updateRate(from: currencyNameFrom, to: currencyNameTo)
+        }
+    }
     
     private lazy var amountTextField: UITextField = {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.borderStyle = .roundedRect
         textField.clearButtonMode = .always
-        textField.placeholder = "amount"
+        textField.placeholder = "summ"
         textField.keyboardType = .decimalPad
         textField.addTarget(self, action: #selector(textFieldDidChangeSelection(_:)), for: .valueChanged)
         return textField
@@ -35,8 +44,10 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.borderStyle = .roundedRect
+        textField.clearButtonMode = .always
         textField.keyboardType = .decimalPad
-        textField.placeholder = "result"
+        textField.placeholder = "summ"
+        textField.addTarget(self, action: #selector(textFieldDidChangeSelection(_:)), for: .valueChanged)
         return textField
     }()
     
@@ -93,6 +104,7 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupNavigationBar()
+        view.backgroundColor = .systemGray6
         
         setupSubviews(resultTextField, amountTextField, fromButton, toButton, arrowImage, currencyCodeLabelTo, currencyCodeLabelFrom, currencyRateLabel)
         
@@ -105,12 +117,9 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
         setupToLabelConstraints()
         setuoRateLabelConstraints()
         
-        amountTextField.delegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         updateRate(from: currencyNameFrom, to: currencyNameTo)
+        amountTextField.delegate = self
+        resultTextField.delegate = self
     }
     
     @objc private func selectCurrency(_ button: UIButton) {
@@ -151,13 +160,26 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
     }
     
     private func fetchData(from: String, to: String, amount: String?, completion: @escaping()-> Void) {
-        NetworkManager.shared.fetchCurrencyInfo(from: from, to: to, amount: amount) { [weak self] result in
-            switch result {
-            case .success(let convert):
-                self?.resultTextField.text = String(format: "%.2f", convert.result ?? "")
-                completion()
-            case .failure(let error):
-                print(error)
+        
+        if amountTextField.isFirstResponder {
+            NetworkManager.shared.fetchCurrencyInfo(from: from, to: to, amount: amount) { [weak self] result in
+                switch result {
+                case .success(let convert):
+                    self?.resultTextField.text = String(format: "%.2f", convert.result ?? "")
+                    completion()
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        } else {
+            NetworkManager.shared.fetchCurrencyInfo(from: from, to: to, amount: amount) { [weak self] result in
+                switch result {
+                case .success(let convert):
+                    self?.amountTextField.text = String(format: "%.2f", convert.result ?? "")
+                    completion()
+                case .failure(let error):
+                    print(error)
+                }
             }
         }
     }
@@ -166,9 +188,17 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
 // MARK: -  UITextViewDelegate
 extension ConverterViewController {
     @objc func textFieldDidChangeSelection(_ textField: UITextField) {
-        fetchData(from: currencyNameFrom, to: currencyNameTo, amount: textField.text) { [ weak self ] in
-            if textField.text == "" {
-                self?.resultTextField.text = ""
+        if textField == amountTextField {
+            fetchData(from: currencyNameFrom, to: currencyNameTo, amount: textField.text) { [ weak self ] in
+                if textField.text == "" {
+                    self?.resultTextField.text = ""
+                }
+            }
+        } else {
+            fetchData(from: currencyNameTo, to: currencyNameFrom, amount: textField.text) { [ weak self ] in
+                if textField.text == "" {
+                    self?.amountTextField.text = ""
+                }
             }
         }
     }
@@ -177,16 +207,6 @@ extension ConverterViewController {
         super.touchesBegan(touches, with: event)
         view.endEditing(true)
     }
-    
-    //        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    //            if range.length + range.location > amountTextField.text?.count ?? 6  {
-    //                return false
-    //            }
-    //
-    //            let limit = (amountTextField.text?.count)! + string.count - range.length
-    //
-    //            return limit <= 6
-    //        }
 }
 
 // MARK: - ConverterViewControllerDelegate
@@ -216,7 +236,7 @@ extension ConverterViewController {
     
     private func setupArrowImageConstraints() {
         NSLayoutConstraint.activate([
-            arrowImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
+            arrowImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 75),
             arrowImage.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
@@ -224,35 +244,35 @@ extension ConverterViewController {
     private func setupFromButtonConstraints() {
         NSLayoutConstraint.activate([
             fromButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 70),
-            fromButton.trailingAnchor.constraint(equalTo: arrowImage.leadingAnchor, constant: 0)
+            fromButton.trailingAnchor.constraint(equalTo: arrowImage.leadingAnchor, constant: -5)
         ])
     }
     
     private func setupFromLabelConstraints() {
         NSLayoutConstraint.activate([
             currencyCodeLabelFrom.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 70),
-            currencyCodeLabelFrom.trailingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: 0)
+            currencyCodeLabelFrom.trailingAnchor.constraint(equalTo: fromButton.leadingAnchor, constant: -5)
         ])
     }
     
     private func setupToButtonConstraints() {
         NSLayoutConstraint.activate([
             toButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 70),
-            toButton.leadingAnchor.constraint(equalTo: arrowImage.trailingAnchor, constant: 0)
+            toButton.leadingAnchor.constraint(equalTo: arrowImage.trailingAnchor, constant: 5)
         ])
     }
     
     private func setupToLabelConstraints() {
         NSLayoutConstraint.activate([
             currencyCodeLabelTo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 70),
-            currencyCodeLabelTo.leadingAnchor.constraint(equalTo: toButton.trailingAnchor, constant: 0)
+            currencyCodeLabelTo.leadingAnchor.constraint(equalTo: toButton.trailingAnchor, constant: 5)
         ])
     }
     
     private func setupAmountTFConstraints() {
         NSLayoutConstraint.activate([
             amountTextField.topAnchor.constraint(equalTo: fromButton.bottomAnchor, constant: 20),
-            amountTextField.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: -120),
+            amountTextField.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: -140),
             amountTextField.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: -20),
         ])
     }
@@ -261,7 +281,7 @@ extension ConverterViewController {
         NSLayoutConstraint.activate([
             resultTextField.topAnchor.constraint(equalTo: toButton.bottomAnchor, constant: 20),
             resultTextField.leadingAnchor.constraint(equalTo: view.centerXAnchor, constant: 20),
-            resultTextField.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: 120),
+            resultTextField.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: 140),
         ])
     }
 }
