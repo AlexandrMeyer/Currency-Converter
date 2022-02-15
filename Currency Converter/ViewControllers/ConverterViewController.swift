@@ -102,7 +102,6 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         setupNavigationBar()
         view.backgroundColor = .systemGray6
         
@@ -188,6 +187,14 @@ class ConverterViewController: UIViewController, UITextFieldDelegate {
 // MARK: -  UITextViewDelegate
 extension ConverterViewController {
     @objc func textFieldDidChangeSelection(_ textField: UITextField) {
+        
+        if textField.text?.first == "0" {
+            present(AlertController.shared.showAlert(), animated: true) { [unowned self] in
+                amountTextField.text = ""
+                resultTextField.text = ""
+            }
+        }
+            
         if textField == amountTextField {
             fetchData(from: currencyNameFrom, to: currencyNameTo, amount: textField.text) { [ weak self ] in
                 if textField.text == "" {
